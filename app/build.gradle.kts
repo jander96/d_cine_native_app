@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.devj.dcine"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.kotlinx.datetime)
 
 
     implementation(libs.ktor.client.core) // Core library
@@ -77,6 +78,10 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.navigation)
+
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
 
     testImplementation(libs.junit)

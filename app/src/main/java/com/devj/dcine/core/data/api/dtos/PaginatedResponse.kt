@@ -1,4 +1,4 @@
-package com.devj.dcine.core.data.dtos
+package com.devj.dcine.core.data.api.dtos
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
