@@ -14,7 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.devj.dcine.core.extensions.list.state.reachedBottom
+import com.devj.dcine.core.utils.extensions.reachedBottom
 import kotlinx.coroutines.launch
 
 @Composable

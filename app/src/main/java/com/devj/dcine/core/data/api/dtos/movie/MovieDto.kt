@@ -1,5 +1,6 @@
 package com.devj.dcine.core.data.api.dtos.movie
 
+import com.devj.dcine.core.utils.helpers.PathImageHelper
 import com.devj.dcine.features.movies.domain.Movie
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -20,7 +21,7 @@ data class MovieDto(
     val overview: String,
     val popularity: Double,
     @SerialName("poster_path")
-    val posterPath: String,
+    val posterPath: String?,
     @SerialName("release_date")
     val releaseDate: String,
     val title: String,
@@ -34,13 +35,13 @@ data class MovieDto(
         Movie(
             id = id,
             adult = adult,
-            backdropPath = backdropPath?.let {   "https://image.tmdb.org/t/p/w500/${it}" } ?: "https://blog.springshare.com/wp-content/uploads/2010/02/nc-md.gif" ,
+            backdropPath = backdropPath?.let { PathImageHelper.getImageUrl(it) }  ?: "https://blog.springshare.com/wp-content/uploads/2010/02/nc-md.gif" ,
             genreIds = genreIds,
             originalLanguage = originalLanguage,
             originalTitle = originalTitle,
             overview = overview,
             popularity = popularity,
-            posterPath = "https://image.tmdb.org/t/p/w500/${posterPath}",
+            posterPath = posterPath?.let { PathImageHelper.getImageUrl(it) }  ?: "https://blog.springshare.com/wp-content/uploads/2010/02/nc-md.gif" ,
             releaseDate = LocalDate.parse(releaseDate),
             title = title,
             video = video,

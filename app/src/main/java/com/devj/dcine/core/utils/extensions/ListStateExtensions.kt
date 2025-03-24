@@ -1,4 +1,4 @@
-package com.devj.dcine.core.extensions.list.state
+package com.devj.dcine.core.utils.extensions
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState

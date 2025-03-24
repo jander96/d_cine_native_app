@@ -61,7 +61,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3.adaptive)
+    implementation(libs.androidx.material3.adaptive.layout)
+    implementation(libs.androidx.material3.adaptive.navigation)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.androidx.constraintlayout)
 
 
     implementation(libs.ktor.client.core) // Core library
@@ -82,6 +86,8 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    implementation(libs.compose.navigation)
 
 
     testImplementation(libs.junit)

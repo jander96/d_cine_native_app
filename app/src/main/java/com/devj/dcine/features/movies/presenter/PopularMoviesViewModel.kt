@@ -4,14 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.devj.dcine.core.composables.PaginationState
 import com.devj.dcine.features.movies.data.MoviesRepository
 import com.devj.dcine.features.movies.domain.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class PopularMoviesViewModel(private val repo: MoviesRepository) : ViewModel() {
 
@@ -22,12 +20,6 @@ class PopularMoviesViewModel(private val repo: MoviesRepository) : ViewModel() {
     private val _state = MutableStateFlow(PopularMoviesState())
     val state: StateFlow<PopularMoviesState> get() = _state
     private var page by mutableIntStateOf(1)
-
-    init {
-        viewModelScope.launch {
-            loadMovies()
-        }
-    }
 
     suspend fun loadMovies() {
         try {
