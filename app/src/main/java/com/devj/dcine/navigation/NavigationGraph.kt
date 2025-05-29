@@ -1,14 +1,16 @@
 package com.devj.dcine.navigation
 
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.devj.dcine.features.detail.presenter.MovieDetailScreen
 import com.devj.dcine.features.home.presenter.HomeScreen
+import com.devj.dcine.features.profile.ProfileScreen
+import com.devj.dcine.features.search.presenter.SearchScreen
+import com.devj.dcine.features.wishlist.WishlistScreen
 
 fun NavGraphBuilder.mainGraph(
-    navController: NavController
+    navController: Navigator
 ) {
 
     composable<Screen.Home> {
@@ -25,6 +27,18 @@ fun NavGraphBuilder.mainGraph(
             movieId = detail.id,
             onBackClick = {navController.popBackStack()}
         )
+    }
+
+    composable<Screen.Search> {
+        SearchScreen(onItemClick = {
+            navController.navigate(Screen.MovieDetail(it))
+        })
+    }
+    composable<Screen.Wishlist> {
+        WishlistScreen()
+    }
+    composable<Screen.Profile> {
+        ProfileScreen()
     }
 
 

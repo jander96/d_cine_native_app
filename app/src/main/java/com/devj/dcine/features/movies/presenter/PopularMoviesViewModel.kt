@@ -5,6 +5,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.devj.dcine.core.composables.PaginationState
+import com.devj.dcine.core.presenter.AsyncState
+import com.devj.dcine.core.presenter.MovieStateI
+import com.devj.dcine.features.filters.domain.repository.FilterRepository
 import com.devj.dcine.features.movies.data.MoviesRepository
 import com.devj.dcine.features.movies.domain.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +24,11 @@ class PopularMoviesViewModel(private val repo: MoviesRepository) : ViewModel() {
     val state: StateFlow<PopularMoviesState> get() = _state
     private var page by mutableIntStateOf(1)
 
-    suspend fun loadMovies() {
+    suspend fun loadMovies(isRefresh: Boolean = false) {
+        if(isRefresh) {
+            page = 1
+            _state.update { PopularMoviesState() }
+        }
         try {
             _state.update {
                 it.copy(
@@ -33,7 +40,7 @@ class PopularMoviesViewModel(private val repo: MoviesRepository) : ViewModel() {
             _state.update {
                 it.copy(
                     asyncState = AsyncState.SUCCESS,
-                    popularMovies = it.popularMovies + result,
+                    movies = it.movies + result,
                     paginationState = result.run {
                         if (size < PAGE_SIZE) PaginationState.PAGINATION_EXHAUSTED
                         else PaginationState.IDLE
@@ -55,23 +62,13 @@ class PopularMoviesViewModel(private val repo: MoviesRepository) : ViewModel() {
 
 
 data class PopularMoviesState(
-    val asyncState: AsyncState = AsyncState.INITIAL,
-    val popularMovies: List<Movie> = emptyList(),
-    val paginationState: PaginationState = PaginationState.IDLE,
-    val error: Throwable? = null,
-)
+    override val asyncState: AsyncState = AsyncState.INITIAL,
+    override val movies: List<Movie> = emptyList(),
+    override val paginationState: PaginationState = PaginationState.IDLE,
+    override val error: Throwable? = null,
+): MovieStateI
 
-enum class AsyncState {
-    INITIAL,
-    LOADING,
-    SUCCESS,
-    ERROR;
 
-    val isLoading: Boolean get() = this == LOADING
-    val isSuccess: Boolean get() = this == SUCCESS
-    val isError: Boolean get() = this == ERROR
-    val isInitial: Boolean get() = this == INITIAL
-}
 
 
 

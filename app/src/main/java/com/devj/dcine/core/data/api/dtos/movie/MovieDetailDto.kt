@@ -11,7 +11,7 @@ data class MovieDetailDto(
     @SerialName("adult")
     val adult: Boolean,
     @SerialName("backdrop_path")
-    val backdropPath: String,
+    val backdropPath: String?,
     @SerialName("belongs_to_collection")
     val belongsToCollection: BelongsToCollectionDto?,
     @SerialName("budget")
@@ -23,7 +23,7 @@ data class MovieDetailDto(
     @SerialName("id")
     val id: Int,
     @SerialName("imdb_id")
-    val imdbId: String,
+    val imdbId: String?,
     @SerialName("origin_country")
     val originCountry: List<String>,
     @SerialName("original_language")
@@ -64,7 +64,9 @@ data class MovieDetailDto(
     fun toDomain() : MovieDetail {
         return MovieDetail(
              adult = adult,
-             backdropPath = PathImageHelper.getImageUrl(backdropPath),
+             backdropPath = backdropPath?.let {
+                 PathImageHelper.getImageUrl(it)
+             } ?: PathImageHelper.getImageUrl(posterPath),
              belongsToCollection = belongsToCollection?.toDomain(),
              budget = budget,
              genres = genres.map { it.toDomain() },

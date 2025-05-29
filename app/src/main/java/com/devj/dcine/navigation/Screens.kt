@@ -9,6 +9,12 @@ sealed interface Screen {
     data object Home : Screen
     @Serializable
     data class MovieDetail(val id: Int): Screen
+    @Serializable
+    data object Search : Screen
+    @Serializable
+    data object Wishlist : Screen
+    @Serializable
+    data object Profile : Screen
 
 }
 
