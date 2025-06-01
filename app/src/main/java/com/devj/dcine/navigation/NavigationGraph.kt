@@ -25,7 +25,10 @@ fun NavGraphBuilder.mainGraph(
         val detail = it.toRoute<Screen.MovieDetail>()
         MovieDetailScreen(
             movieId = detail.id,
-            onBackClick = {navController.popBackStack()}
+            onBackClick = {navController.popBackStack()},
+            onSimilarMovieClick = {
+                navController.navigate(Screen.MovieDetail(it.id))
+            }
         )
     }
 

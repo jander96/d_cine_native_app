@@ -1,21 +1,18 @@
 package com.devj.dcine.features.search.presenter
 
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devj.dcine.core.composables.PaginationState
 import com.devj.dcine.core.presenter.AsyncState
 import com.devj.dcine.core.presenter.MovieStateI
 import com.devj.dcine.features.filters.domain.models.MovieFilter
+import com.devj.dcine.features.filters.domain.models.SortBy
 import com.devj.dcine.features.filters.domain.repository.FilterRepository
 import com.devj.dcine.features.movies.data.MoviesRepository
 import com.devj.dcine.features.movies.domain.Movie
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -29,6 +26,7 @@ class SearchViewModel(private val repo: MoviesRepository, filterRepository: Filt
     sealed class SearchUiEvent {
         data class Search(val query: String) : SearchUiEvent()
         data class FilterChanged(val filter: MovieFilter) : SearchUiEvent()
+        data class OrderChanged(val order: SortBy) : SearchUiEvent()
     }
 
     companion object {
@@ -36,6 +34,7 @@ class SearchViewModel(private val repo: MoviesRepository, filterRepository: Filt
     }
     private var page: MutableIntState = mutableIntStateOf(1)
     private var filters = MovieFilter()
+    private var order = SortBy.POPULARITY_DESC
     private val _events = Channel<SearchUiEvent>()
     val events = _events.receiveAsFlow()
 
@@ -45,6 +44,12 @@ class SearchViewModel(private val repo: MoviesRepository, filterRepository: Filt
             filterRepository.getMovieFilters().collectLatest { filter ->
                 filters = filter
                 _events.send(SearchUiEvent.FilterChanged(filter))
+            }
+        }
+        viewModelScope.launch {
+            filterRepository.getMovieOrder().collectLatest { newOrder ->
+                order = newOrder
+                _events.send(SearchUiEvent.OrderChanged(newOrder))
             }
         }
     }
@@ -65,7 +70,7 @@ class SearchViewModel(private val repo: MoviesRepository, filterRepository: Filt
                     paginationState = if (page.intValue == 1) PaginationState.LOADING else PaginationState.PAGINATING
                 )
             }
-            val result = repo.discoverMovies(filter = filters, page = page.intValue)
+            val result = repo.discoverMovies(filter = filters, page = page.intValue, order = order)
             _state.update {
                 it.copy(
                     asyncState = AsyncState.SUCCESS,

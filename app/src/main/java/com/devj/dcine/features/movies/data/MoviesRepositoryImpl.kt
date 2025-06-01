@@ -6,7 +6,9 @@ import com.devj.dcine.core.data.local.database.dao.MovieDetailDao
 import com.devj.dcine.core.data.local.database.entities.MovieDetailWithRelations
 import com.devj.dcine.core.data.local.database.entities.MovieGenreCrossRef
 import com.devj.dcine.features.detail.domain.Actor
+import com.devj.dcine.features.detail.domain.Genre
 import com.devj.dcine.features.detail.domain.MovieDetail
+import com.devj.dcine.features.detail.domain.ProductionCompany
 import com.devj.dcine.features.filters.domain.models.MovieFilter
 import com.devj.dcine.features.filters.domain.models.SortBy
 import com.devj.dcine.features.movies.domain.Movie
@@ -36,6 +38,10 @@ class MoviesRepositoryImpl(private val api: MovieApi, private val dao: MovieDeta
     override suspend fun getNowPlayingMovies(page: Int): List<Movie> {
         val response = api.getNowPlayingMovies(page = page)
         return response.results.map { it.toDomain() }
+    }
+
+    override suspend fun getSimilarMovies(id: Int,page: Int): List<Movie> {
+        return  api.getSimilarMovies(id,page).results.map { it.toDomain() }
     }
 
     override suspend fun discoverMovies(
@@ -127,6 +133,17 @@ class MoviesRepositoryImpl(private val api: MovieApi, private val dao: MovieDeta
             // Eliminar entidad principal
             dao.deleteMovieDetail(movie.movie)
         }
+    }
+
+    override suspend fun getGenres(): List<Genre> {
+        return  api.getGenres().map { it.toDomain() }
+    }
+
+    override suspend fun getCompanies(
+        query: String,
+        page: Int
+    ): List<ProductionCompany> {
+        return  api.searchCompany(query,page).results.map { it.toDomain() }
     }
 
 }

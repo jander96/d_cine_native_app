@@ -141,11 +141,11 @@ fun MoviesList(
                                 .size(12.dp)
                         )
                         Text(
-                            text = movie.releaseDate.format(
+                            text = movie.releaseDate?.format(
                                 DateTimeFormatter.ofPattern(
                                     "yyyy"
                                 )
-                            ),
+                            ) ?: "No date",
                             style = MaterialTheme.typography.labelSmall,
                         )
                     }

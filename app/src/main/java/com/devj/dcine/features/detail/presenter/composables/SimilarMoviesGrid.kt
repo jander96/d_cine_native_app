@@ -1,7 +1,5 @@
-package com.devj.dcine.features.video.presenter
+package com.devj.dcine.features.detail.presenter.composables
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,8 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,63 +24,70 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.devj.dcine.R
+import com.devj.dcine.core.composables.InfiniteHorizontalGrid
 import com.devj.dcine.core.composables.shimmerBrush
-import com.devj.dcine.core.presenter.AsyncState
-import com.devj.dcine.features.video.domain.model.Video
+import com.devj.dcine.features.detail.presenter.SimilarMoviesState
+import com.devj.dcine.features.movies.domain.Movie
 
 @Composable
-fun VideosGrid(modifier: Modifier = Modifier, videosState: MovieVideosState) {
-    if(videosState.videos.isEmpty()) return
-    Box(modifier = modifier.height(320.dp)) {
-        Column {
-            Text(
-                text = "Videos",
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            when (videosState.asyncState) {
-                AsyncState.INITIAL -> CircularProgressIndicator()
-                AsyncState.LOADING -> CircularProgressIndicator()
-                AsyncState.SUCCESS -> VideosGridView(modifier = Modifier, videos = videosState.videos)
-                AsyncState.ERROR -> {
-                    return Text(text = "Error: ${videosState.error?.message ?: "Unknown error"}")
-                }
-            }
-        }
-
-    }
-
-
-
-}
-
-@Composable
-private fun VideosGridView(modifier: Modifier = Modifier, videos : List<Video>) {
-    // implement a grid use LazyHorizontalGrid
-
-    LazyHorizontalGrid(
-        modifier = modifier,
-        rows = GridCells.Adaptive(minSize = 128.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+fun SimilarMoviesGrid(
+    modifier: Modifier = Modifier,
+    similarMoviesState: SimilarMoviesState,
+    onLoadMore :suspend () -> Unit,
+    onItemClick: (movie: Movie)-> Unit
     ) {
 
-        items(videos) {
-            VideoItem(video = it)
+    Box(modifier = modifier.height(390.dp)) {
+        Column {
+            Text(
+                text = "Similar Movies",
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            InfiniteHorizontalGrid(
+                elements = similarMoviesState.movies,
+                modifier = modifier,
+                rows = GridCells.Adaptive(minSize = 130.dp),
+                itemBuilder = {
+                    MovieItem(it, onClick = onItemClick)
+                },
+                gridState = rememberLazyGridState(),
+                onLoadMore = onLoadMore,
+                paginationState = similarMoviesState.paginationState,
+                initialLoadingBuilder = {
+                    CircularProgressIndicator()
+                },
+                errorBuilder = {
+                    Text(similarMoviesState.error.toString())
+                },
+                loadingNextBuilder = {
+                    CircularProgressIndicator()
+                },
+                emptyBuilder = {
+                    Text("There is not similar movies")
+                },
+                endOfListBuilder = {
+                    Text("No more similar movies")
+                },
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            )
         }
+
     }
 
 
+
 }
+
 @Composable
-fun VideoItem(video: Video, modifier : Modifier = Modifier) {
+fun MovieItem(movie: Movie, modifier : Modifier = Modifier, onClick: (movie: Movie)-> Unit) {
     val painter = rememberAsyncImagePainter(
-        video.getThumbnailUrl(),
+        movie.backdropPath,
         contentScale = ContentScale.Crop,
-        )
+    )
     val state = painter.state.collectAsState()
     Column(
         modifier = modifier,
@@ -97,11 +101,11 @@ fun VideoItem(video: Video, modifier : Modifier = Modifier) {
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
                         .height(180.dp)
-                        .aspectRatio(16f / 9f)
+                        .aspectRatio(16f/9f)
                         .background(shimmerBrush()),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(strokeWidth = 1.dp, modifier = Modifier.fillMaxWidth(0.5f))
+                    CircularProgressIndicator(strokeWidth = 1.dp, modifier = Modifier)
                 }
             }
 
@@ -109,16 +113,15 @@ fun VideoItem(video: Video, modifier : Modifier = Modifier) {
                 Image(
                     modifier = Modifier
                         .clickable {
-                            context.startActivity(
-                                video.getPlaybackIntent(context, video)
-                            )
+                            onClick(movie)
                         }
                         .clip(MaterialTheme.shapes.medium)
-                        .height(180.dp)
-                        .aspectRatio(16f / 9f),
+                        .weight(4f),
+
+
                     painter = painter,
                     contentScale = ContentScale.Crop,
-                    contentDescription = video.name
+                    contentDescription = movie.title
                 )
             }
 
@@ -126,23 +129,19 @@ fun VideoItem(video: Video, modifier : Modifier = Modifier) {
                 Image(
                     contentScale = ContentScale.Crop,
                     modifier = modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .height(180.dp)
-                        .aspectRatio(16f / 9f),
+                        .fillMaxWidth()
+                        .aspectRatio(13f/9f)
+                        .clip(MaterialTheme.shapes.medium),
                     painter = painterResource(R.drawable.no_photo),
-                    contentDescription = video.name
+                    contentDescription = movie.title
                 )
             }
         }
-        Text(video.name.run {
-           val name = if(length > 12) "${take(12)}..." else this
+        Text(movie.title.run {
+            if(isEmpty()) return@run "No title"
+            val name = if(length > 38) "${take(38)}..." else this
             name;
-        }, style = MaterialTheme.typography.bodySmall)
+        }, modifier = Modifier.weight(1f),style = MaterialTheme.typography.bodySmall)
     }
 }
 
-private fun Video.getPlaybackIntent(context: Context, video: Video): Intent {
-    return Intent(context, PlaybackActivity::class.java).apply {
-        putExtra(PlaybackActivity.VIDEO, video)
-    }
-}

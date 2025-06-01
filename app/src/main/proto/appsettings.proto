@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "com.devj.dcine";
+option java_multiple_files = true;
+
+message AppSettingProto {
+  string language = 1;
+  string region = 2;
+  bool is_dark = 3;
+}

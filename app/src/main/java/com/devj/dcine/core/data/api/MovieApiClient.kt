@@ -3,8 +3,11 @@ package com.devj.dcine.core.data.api
 import com.devj.dcine.BuildConfig
 import com.devj.dcine.core.data.api.dtos.PaginatedResponse
 import com.devj.dcine.core.data.api.dtos.cast.CastResponse
+import com.devj.dcine.core.data.api.dtos.movie.GenreDto
+import com.devj.dcine.core.data.api.dtos.movie.GenreListDto
 import com.devj.dcine.core.data.api.dtos.movie.MovieDetailDto
 import com.devj.dcine.core.data.api.dtos.movie.MovieDto
+import com.devj.dcine.core.data.api.dtos.movie.ProductionCompanyDto
 import com.devj.dcine.core.data.api.dtos.video.VideoResponseDto
 import com.devj.dcine.features.filters.domain.models.MovieFilter
 import com.devj.dcine.features.filters.domain.models.SortBy
@@ -45,6 +48,21 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
 
     }
 
+    override suspend fun getSimilarMovies(
+        id: Int,
+        page: Int?
+    ): PaginatedResponse<MovieDto> {
+//        https://api.themoviedb.org/3/movie/{movie_id}/similar
+        return client.get {
+            url {
+                path("movie")
+                appendPathSegments(id.toString())
+                appendPathSegments("similar")
+                parameters.append("page", page.toString())
+            }
+        }.body()
+    }
+
     override suspend fun getTopRatedMovies(
         page: Int?,
         startDate: String?,
@@ -66,7 +84,7 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
             }
 
         }
-        return  response.body()
+        return response.body()
     }
 
     override suspend fun getNowPlayingMovies(
@@ -90,7 +108,7 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
             }
 
         }
-        return  response.body()
+        return response.body()
     }
 
     override suspend fun getUpcomingMovies(
@@ -114,11 +132,11 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
             }
 
         }
-        return  response.body()
+        return response.body()
     }
 
     override suspend fun getMovie(id: Int): MovieDetailDto {
-        return  client.get{
+        return client.get {
             url {
                 path("movie")
                 appendPathSegments(id.toString())
@@ -128,7 +146,7 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
 
     override suspend fun getCasting(id: Int): CastResponse {
         // https://api.themoviedb.org/3/movie/{movie_id}/credits
-        return  client.get{
+        return client.get {
             url {
                 path("movie")
                 appendPathSegments(id.toString())
@@ -154,7 +172,7 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
         order: SortBy,
     ): PaginatedResponse<MovieDto> {
 
-        return  client.get {
+        return client.get {
             url {
                 path("discover/movie")
                 parameters.append("page", page.toString())
@@ -166,12 +184,37 @@ class MovieApiImpl(private val client: HttpClient) : MovieApi {
                 filter.voteAverage?.let { parameters.append("vote_average.gte", it.toString()) }
                 filter.country?.let { parameters.append("with_origin_country", it) }
                 filter.genres.takeIf { it.isNotEmpty() }?.let { genres ->
-                    parameters.append("with_genres", genres.joinToString("|") { it.id.toString() })
+                    parameters.append("with_genres", genres.joinToString(",") { it.id.toString() })
                 }
                 filter.companies.takeIf { it.isNotEmpty() }?.let { companies ->
-                    parameters.append("with_companies", companies.joinToString("|") { it.id.toString() })
+                    parameters.append(
+                        "with_companies",
+                        companies.joinToString("|") { it.id.toString() })
                 }
 
+            }
+        }.body()
+    }
+
+    override suspend fun getGenres(): List<GenreDto> {
+        // https://api.themoviedb.org/3/genre/movie/list
+        return client.get {
+            url {
+                path("genre/movie/list")
+            }
+        }.body<GenreListDto>().genres
+    }
+
+    override suspend fun searchCompany(
+        query: String,
+        page: Int
+    ): PaginatedResponse<ProductionCompanyDto> {
+        //https://api.themoviedb.org/3/search/company
+        return client.get {
+            url {
+                path("search/company")
+                parameters.append("query", query)
+                parameters.append("page", page.toString())
             }
         }.body()
     }

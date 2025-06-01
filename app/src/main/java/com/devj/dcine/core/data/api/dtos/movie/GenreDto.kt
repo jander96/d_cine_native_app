@@ -15,3 +15,10 @@ data class GenreDto(
     fun toDomain(): Genre =
         Genre(id = id, name = name)
 }
+
+@Serializable
+data class  GenreListDto(
+    val genres: List<GenreDto>
+) {
+    fun toDomain(): List<Genre> = genres.map { it.toDomain() }
+}

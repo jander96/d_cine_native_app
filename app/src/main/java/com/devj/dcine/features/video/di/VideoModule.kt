@@ -27,8 +27,12 @@ val videoModule = module {
     single {
         ExoPlayer.Builder(androidContext()).build().apply {
             setHandleAudioBecomingNoisy(true)
-            setPlayWhenReady(true)
+            playWhenReady = true
         }
+    }
+
+    single {
+        ExoPlayer.Builder(androidContext()).build()
     }
 
     single<VideoPlayerService> {

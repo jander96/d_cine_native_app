@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.google.protobuf.gradle.id
 import java.util.Properties
 
 plugins {
@@ -9,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     id("io.kotzilla.kotzilla-plugin")
+    id("com.google.protobuf")
 }
 
 android {
@@ -81,6 +83,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation(libs.protobuf.javalite) // Protobuf
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore)
+
+
     implementation(libs.ktor.client.core) // Core library
     implementation(libs.ktor.client.okhttp) // OkHttp engine
 
@@ -110,4 +117,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.31.1" // Or your desired version
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                // Correct way to specify javalite for Android
+                id("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }

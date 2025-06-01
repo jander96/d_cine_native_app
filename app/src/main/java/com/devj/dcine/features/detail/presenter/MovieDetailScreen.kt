@@ -1,5 +1,6 @@
 package com.devj.dcine.features.detail.presenter
 
+import android.content.res.Resources
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -23,6 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +35,7 @@ import com.devj.dcine.core.composables.Space16
 import com.devj.dcine.core.composables.Space32
 import com.devj.dcine.core.composables.management.states.toolbar.TScrollState
 import com.devj.dcine.core.composables.management.states.toolbar.ToolbarState
+import com.devj.dcine.core.composables.rememberGasmonicBrush
 import com.devj.dcine.core.composables.shimmerBrush
 import com.devj.dcine.features.detail.domain.Actor
 import com.devj.dcine.features.detail.domain.MovieDetail
@@ -39,6 +44,9 @@ import com.devj.dcine.features.detail.presenter.composables.MovieActors
 import com.devj.dcine.features.detail.presenter.composables.MovieCompanies
 import com.devj.dcine.features.detail.presenter.composables.MovieOverview
 import com.devj.dcine.features.detail.presenter.composables.MovieStats
+import com.devj.dcine.features.detail.presenter.composables.SimilarMoviesGrid
+import com.devj.dcine.features.movies.domain.Movie
+import com.devj.dcine.features.video.presenter.MovieVideosState
 import com.devj.dcine.features.video.presenter.VideoViewModel
 import com.devj.dcine.features.video.presenter.VideosGrid
 import org.koin.androidx.compose.koinViewModel
@@ -51,10 +59,14 @@ private val MaxToolbarHeight = 300.dp
 fun MovieDetailScreen(
     movieId: Int,
     viewModel: MovieDetailViewModel = koinViewModel(),
+    similarMoviesViewModel: SimilarMoviesViewModel = koinViewModel(parameters = {parametersOf(movieId)}),
     videoViewModel: VideoViewModel = koinViewModel(parameters = { parametersOf(movieId) }),
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onSimilarMovieClick: (movie: Movie) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val videoState by videoViewModel.state.collectAsStateWithLifecycle()
+    val similarMoviesState by similarMoviesViewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(movieId) {
         viewModel.getMovie(movieId)
@@ -87,9 +99,14 @@ fun MovieDetailScreen(
 
             MovieDetailView(
                 movie = movie,
-                videoViewModel = videoViewModel,
+                videoState = videoState,
+                similarMoviesState = similarMoviesState,
                 actors = actors,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                onLoadMoreSimilarMovies = {
+                    similarMoviesViewModel.loadMovies()
+                },
+                onSimilarMovieClick = onSimilarMovieClick
             )
         }
 
@@ -107,9 +124,12 @@ fun MovieDetailScreen(
 fun MovieDetailView(
     modifier: Modifier = Modifier,
     movie: MovieDetail,
-    videoViewModel: VideoViewModel,
+    videoState: MovieVideosState,
+    similarMoviesState: SimilarMoviesState,
     actors: List<Actor>,
     onBackClick: () -> Unit = {},
+    onLoadMoreSimilarMovies: suspend  () -> Unit = {},
+    onSimilarMovieClick: (movie: Movie)->Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val toolbarHeightRange = with(LocalDensity.current) {
@@ -118,26 +138,31 @@ fun MovieDetailView(
     val toolbarState = rememberToolbarState(toolbarHeightRange)
     toolbarState.scrollValue = scrollState.value
 
-    Box(
-        modifier = modifier.background(color = MaterialTheme.colorScheme.surface)
+    Surface(
+        modifier = modifier
     ) {
-        MovieDetailBody(
-            modifier = Modifier.fillMaxSize(),
-            movie = movie,
-            videoViewModel = videoViewModel,
-            actors = actors,
-            scrollState = scrollState,
-            paddingValues = PaddingValues(top = with(LocalDensity.current) { toolbarState.height.toDp() })
-        )
-        CollapsingToolbar(
-            onBackClick = onBackClick,
-            title = { Text(movie.title) },
-            toolbarState = toolbarState,
-            backgroundImage = movie.backdropPath,
-            modifier = Modifier.fillMaxWidth()
+        Box {
+            MovieDetailBody(
+                modifier = Modifier.fillMaxSize(),
+                movie = movie,
+                videoState = videoState,
+                similarMoviesState = similarMoviesState,
+                actors = actors,
+                scrollState = scrollState,
+                paddingValues = PaddingValues(top = with(LocalDensity.current) { toolbarState.height.toDp() }),
+                onLoadMoreSimilarMovies = onLoadMoreSimilarMovies,
+                onSimilarMovieClick = onSimilarMovieClick
+            )
+            CollapsingToolbar(
+                onBackClick = onBackClick,
+                title = { Text(movie.title) },
+                toolbarState = toolbarState,
+                backgroundImage = movie.backdropPath,
+                modifier = Modifier.fillMaxWidth()
 
-        )
+            )
 
+        }
     }
 }
 
@@ -151,14 +176,17 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 @Composable
 fun MovieDetailBody(
     movie: MovieDetail,
-    videoViewModel: VideoViewModel,
+    videoState: MovieVideosState,
+    similarMoviesState: SimilarMoviesState,
     actors: List<Actor>,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
     paddingValues: PaddingValues = PaddingValues(0.dp),
-    widowIfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
+    widowIfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
+    onLoadMoreSimilarMovies: suspend ()-> Unit,
+    onSimilarMovieClick: (movie: Movie)-> Unit
 ) {
-    val videosState by videoViewModel.state.collectAsStateWithLifecycle()
+
     Column(
         modifier = modifier
             .padding(paddingValues)
@@ -186,7 +214,14 @@ fun MovieDetailBody(
 
         MovieActors(modifier = Modifier, actors = actors)
         Space16()
-        VideosGrid(modifier = Modifier, videosState = videosState)
+        VideosGrid(modifier = Modifier, videosState = videoState)
+        Space16()
+        SimilarMoviesGrid(
+            modifier = Modifier,
+            similarMoviesState = similarMoviesState,
+            onLoadMore = onLoadMoreSimilarMovies,
+            onItemClick = onSimilarMovieClick,
+            )
         Spacer(modifier = Modifier.height(120.dp))
 
     }

@@ -42,7 +42,7 @@ data class MovieDto(
             overview = overview,
             popularity = popularity,
             posterPath = posterPath?.let { PathImageHelper.getImageUrl(it) }  ?: "https://blog.springshare.com/wp-content/uploads/2010/02/nc-md.gif" ,
-            releaseDate = LocalDate.parse(releaseDate),
+            releaseDate = if(releaseDate.isNotEmpty()) LocalDate.parse(releaseDate) else null,
             title = title,
             video = video,
             voteAverage = voteAverage,

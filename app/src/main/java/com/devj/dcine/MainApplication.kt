@@ -9,6 +9,7 @@ import com.devj.dcine.features.filters.di.filtersModule
 import com.devj.dcine.features.home.di.homeModule
 import com.devj.dcine.features.movies.di.moviesModule
 import com.devj.dcine.features.search.di.searchModule
+import com.devj.dcine.features.settings.di.settingsModule
 import com.devj.dcine.features.video.di.videoModule
 import io.kotzilla.sdk.analytics.koin.analytics
 import org.koin.android.ext.koin.androidContext
@@ -25,7 +26,7 @@ class MainApplication : Application() {
             analytics()
             modules(
                 coreModule, networkModule, moviesModule, movieDetailModule, videoModule,
-                filtersModule, searchModule, homeModule, localModule
+                filtersModule, searchModule, homeModule, localModule, settingsModule
             )
 
         }

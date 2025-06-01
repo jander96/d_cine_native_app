@@ -2,8 +2,10 @@ package com.devj.dcine.core.data.api
 
 import com.devj.dcine.core.data.api.dtos.PaginatedResponse
 import com.devj.dcine.core.data.api.dtos.cast.CastResponse
+import com.devj.dcine.core.data.api.dtos.movie.GenreDto
 import com.devj.dcine.core.data.api.dtos.movie.MovieDetailDto
 import com.devj.dcine.core.data.api.dtos.movie.MovieDto
+import com.devj.dcine.core.data.api.dtos.movie.ProductionCompanyDto
 import com.devj.dcine.core.data.api.dtos.video.VideoResponseDto
 import com.devj.dcine.features.filters.domain.models.MovieFilter
 import com.devj.dcine.features.filters.domain.models.SortBy
@@ -13,6 +15,11 @@ interface MovieApi {
         page: Int? = null,
         startDate: String? = null,
         endDate: String? = null
+    ): PaginatedResponse<MovieDto>
+
+    suspend fun getSimilarMovies(
+        id: Int,
+        page: Int? = null,
     ): PaginatedResponse<MovieDto>
 
     suspend fun getTopRatedMovies(
@@ -44,4 +51,7 @@ interface MovieApi {
         page: Int = 1,
         order: SortBy = SortBy.POPULARITY_DESC,
     ): PaginatedResponse<MovieDto>
+
+    suspend fun getGenres(): List<GenreDto>
+    suspend fun searchCompany(query: String, page:Int): PaginatedResponse<ProductionCompanyDto>
 }
