@@ -7,11 +7,18 @@ import com.devj.dcine.features.detail.presenter.MovieDetailScreen
 import com.devj.dcine.features.home.presenter.HomeScreen
 import com.devj.dcine.features.profile.ProfileScreen
 import com.devj.dcine.features.search.presenter.SearchScreen
+import com.devj.dcine.features.splash.presenter.SplashScreen
 import com.devj.dcine.features.wishlist.WishlistScreen
 
 fun NavGraphBuilder.mainGraph(
     navController: Navigator
 ) {
+
+    composable<Screen.Splash> {
+        SplashScreen {
+            navController.navigate(Screen.Home)
+        }
+    }
 
     composable<Screen.Home> {
         HomeScreen(

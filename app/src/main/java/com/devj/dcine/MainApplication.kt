@@ -10,8 +10,16 @@ import com.devj.dcine.features.home.di.homeModule
 import com.devj.dcine.features.movies.di.moviesModule
 import com.devj.dcine.features.search.di.searchModule
 import com.devj.dcine.features.settings.di.settingsModule
+import com.devj.dcine.features.splash.di.splashModule
 import com.devj.dcine.features.video.di.videoModule
 import io.kotzilla.sdk.analytics.koin.analytics
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpSend
+import io.ktor.client.plugins.plugin
+import io.ktor.client.request.HttpSendPipeline
+import io.ktor.client.request.url
+import io.ktor.http.URLBuilder
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -26,7 +34,7 @@ class MainApplication : Application() {
             analytics()
             modules(
                 coreModule, networkModule, moviesModule, movieDetailModule, videoModule,
-                filtersModule, searchModule, homeModule, localModule, settingsModule
+                filtersModule, searchModule, homeModule, localModule, settingsModule, splashModule
             )
 
         }

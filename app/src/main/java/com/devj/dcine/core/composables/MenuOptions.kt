@@ -36,7 +36,7 @@ fun<T> MenuOptions(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(16.dp)
     ) {
         IconButton(onClick = { expanded = !expanded }) {

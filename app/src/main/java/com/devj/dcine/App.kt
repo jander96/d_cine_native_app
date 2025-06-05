@@ -35,7 +35,6 @@ import java.nio.file.WatchEvent
 @Composable
 fun App(
     modifier: Modifier = Modifier,
-    widowIfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
 ) {
     val navController = rememberNavController()
     val navigationController = rememberNavigationController(navController)
@@ -146,7 +145,7 @@ fun App(
         NavHost(
             modifier = Modifier.weight(1f),
             navController = navController,
-            startDestination = Screen.Home,
+            startDestination = Screen.Splash,
         ) {
             mainGraph(navigationController)
         }

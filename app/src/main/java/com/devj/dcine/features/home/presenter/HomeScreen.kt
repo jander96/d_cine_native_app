@@ -33,9 +33,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil3.compose.AsyncImage
+import com.devj.dcine.R
 import com.devj.dcine.core.presenter.AsyncState
 import com.devj.dcine.features.auth.presenter.composables.UserAvatar
 import com.devj.dcine.features.movies.presenter.NowPlayingMoviesViewModel
@@ -43,6 +45,7 @@ import com.devj.dcine.features.movies.presenter.PopularMoviesViewModel
 import com.devj.dcine.features.movies.presenter.TopRatedMoviesViewModel
 import com.devj.dcine.features.movies.presenter.UpcomingMoviesViewModel
 import com.devj.dcine.features.movies.presenter.composables.MoviesList
+import com.devj.dcine.features.settings.presenter.composable.LanguageSelector
 import kotlinx.coroutines.async
 import org.koin.androidx.compose.koinViewModel
 
@@ -72,7 +75,7 @@ fun HomeScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "MovieNest",
+                            text = stringResource(R.string.app_title),
                             style = MaterialTheme.typography.headlineSmall
                         )
                     },
@@ -82,6 +85,9 @@ fun HomeScreen(
                             modifier = Modifier.padding(horizontal = 8.dp),
                         )
                     },
+                    actions = {
+                        LanguageSelector()
+                    }
 
                     )
                 Box(

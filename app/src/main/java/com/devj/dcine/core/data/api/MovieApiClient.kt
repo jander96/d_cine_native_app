@@ -13,6 +13,7 @@ import com.devj.dcine.features.filters.domain.models.MovieFilter
 import com.devj.dcine.features.filters.domain.models.SortBy
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.HttpSendPipeline
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
@@ -21,6 +22,7 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.path
 
 class MovieApiImpl(private val client: HttpClient) : MovieApi {
+
     override suspend fun getPopularMovies(
         page: Int?,
         startDate: String?,
