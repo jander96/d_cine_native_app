@@ -143,6 +143,7 @@ fun VideoItem(video: Video, modifier : Modifier = Modifier) {
 
 private fun Video.getPlaybackIntent(context: Context, video: Video): Intent {
     return Intent(context, PlaybackActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         putExtra(PlaybackActivity.VIDEO, video)
     }
 }
