@@ -81,7 +81,7 @@ Feel free to explore, fork, and contribute! This project is open to improvements
 
 | Home | Discover | Detail | Trailer |
 |------|----------|--------|---------|
-| ![](screenshots/home.png) | ![](screenshots/discover.png) | ![](screenshots/detail.png) | ![](screenshots/trailer.png) |
+| ![](home.png) | ![](search.png) | ![](detail.png) | ![](youtube_player.png) |
 
 ---
 
