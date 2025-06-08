@@ -13,20 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.devj.dcine.features.auth.presenter.AuthenticationViewModel
+import com.devj.dcine.features.auth.presenter.UserViewModel
 import com.devj.dcine.navigation.Screen
+import com.devj.dcine.navigation.authGraph
 import com.devj.dcine.navigation.mainGraph
 import com.devj.dcine.navigation.rememberNavigationController
 import java.nio.file.WatchEvent
@@ -35,9 +41,26 @@ import java.nio.file.WatchEvent
 @Composable
 fun App(
     modifier: Modifier = Modifier,
+    authViewModel : AuthenticationViewModel,
 ) {
+    val userState = LocalUserViewModel.current.state.collectAsState()
+    var  initialScreen : Screen = Screen.Auth
+
+    val user = userState.value
+
+    if (user is UserViewModel.State.Loading || user is UserViewModel.State.Initial){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+            return
+        }
+    }
+
+    if (user is UserViewModel.State.Success){
+        initialScreen = Screen.Home
+    }
+
     val navController = rememberNavController()
-    val navigationController = rememberNavigationController(navController)
+    val navigationController = rememberNavigationController(navController, initialScreen)
     val destinations = listOf(
         MainDestination(
             screen = Screen.Home,
@@ -145,8 +168,9 @@ fun App(
         NavHost(
             modifier = Modifier.weight(1f),
             navController = navController,
-            startDestination = Screen.Splash,
+            startDestination = initialScreen,
         ) {
+            authGraph(navController = navController, authViewModel = authViewModel)
             mainGraph(navigationController)
         }
         AnimatedVisibility(
@@ -183,8 +207,9 @@ fun BottomNavigationBar(
             Column(
                 modifier = Modifier
                     .clickable {
-                    onDestinationClick(dst.screen)
-                }.padding(top = 4.dp),
+                        onDestinationClick(dst.screen)
+                    }
+                    .padding(top = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 dst.icon(dst.screen == selectedDestination)

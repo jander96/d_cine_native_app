@@ -1,8 +1,11 @@
 package com.devj.dcine.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.devj.dcine.features.auth.presenter.AuthPage
+import com.devj.dcine.features.auth.presenter.AuthenticationViewModel
 import com.devj.dcine.features.detail.presenter.MovieDetailScreen
 import com.devj.dcine.features.home.presenter.HomeScreen
 import com.devj.dcine.features.profile.ProfileScreen
@@ -11,7 +14,7 @@ import com.devj.dcine.features.splash.presenter.SplashScreen
 import com.devj.dcine.features.wishlist.WishlistScreen
 
 fun NavGraphBuilder.mainGraph(
-    navController: Navigator
+    navController: Navigator,
 ) {
 
     composable<Screen.Splash> {
@@ -52,4 +55,19 @@ fun NavGraphBuilder.mainGraph(
     }
 
 
+}
+fun NavGraphBuilder.authGraph(
+    navController: NavController,
+    authViewModel: AuthenticationViewModel,
+) {
+    composable<Screen.Auth> {
+        AuthPage(
+            viewModel = authViewModel,
+            onSuccess = {
+                navController.navigate(Screen.Home) {
+                    popUpTo(Screen.Auth) { inclusive = true }
+                }
+            }
+        )
+    }
 }

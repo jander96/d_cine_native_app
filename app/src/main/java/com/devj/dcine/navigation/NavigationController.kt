@@ -9,16 +9,17 @@ import androidx.navigation.NavController
 
 @Composable
 fun rememberNavigationController(
-    navController: NavController
+    navController: NavController,
+    initialScreen: Screen
 ): Navigator {
     return remember(navController) {
-        Navigator(navController)
+        Navigator(navController, initialScreen)
     }
 }
 
-class Navigator(private val navController: NavController) {
+class Navigator(private val navController: NavController, initialScreen: Screen) {
 
-    var currentDestination: MutableState<Screen> = mutableStateOf(Screen.Home)
+    var currentDestination: MutableState<Screen> = mutableStateOf(initialScreen)
         private set
 
     val navStack = mutableListOf<Screen>().apply {

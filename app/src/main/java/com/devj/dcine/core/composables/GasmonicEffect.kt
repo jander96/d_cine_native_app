@@ -23,29 +23,21 @@ fun rememberGasmonicBrush(
 ): Brush {
     val transition = rememberInfiniteTransition(label = "gasmonic_transition")
 
-    val offsetX = transition.animateFloat(
+    // Usamos una sola animación para mantener consistencia
+    val offset = transition.animateFloat(
         initialValue = 0f,
         targetValue = maxOffset,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = durationMillis, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "offsetX"
-    )
-
-    val offsetY = transition.animateFloat(
-        initialValue = maxOffset,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = durationMillis * 2, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "offsetY"
+        label = "offset"
     )
 
     return Brush.linearGradient(
         colors = colors,
-        start = Offset(offsetX.value, offsetY.value),
-        end = Offset(offsetY.value, offsetX.value)
+        start = Offset(offset.value, offset.value),
+        end = Offset(maxOffset - offset.value, maxOffset - offset.value),
+        tileMode = TileMode.Repeated // puedes probar con Mirror si quieres efecto continuo
     )
 }

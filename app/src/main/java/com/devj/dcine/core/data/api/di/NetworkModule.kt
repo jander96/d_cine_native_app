@@ -1,6 +1,8 @@
 package com.devj.dcine.core.data.api.di
 
 import com.devj.dcine.BuildConfig
+import com.devj.dcine.core.data.api.AuthenticationApi
+import com.devj.dcine.core.data.api.AuthenticationApiImpl
 import com.devj.dcine.core.data.api.MovieApi
 import com.devj.dcine.core.data.api.MovieApiImpl
 import com.devj.dcine.core.data.api.localizationInterceptorPlugin
@@ -61,6 +63,10 @@ val networkModule = module {
 
     single<MovieApi> {
         MovieApiImpl(get())
+    }
+
+    factory<AuthenticationApi> {
+        AuthenticationApiImpl(get());
     }
 
 }
