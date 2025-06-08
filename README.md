@@ -75,8 +75,6 @@ Feel free to explore, fork, and contribute! This project is open to improvements
 
 ---
 
-## 📷 Screenshots
-
 ## 📸 Screenshots
 
 | Home | Discover | Detail | Trailer |
