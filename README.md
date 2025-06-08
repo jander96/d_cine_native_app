@@ -77,7 +77,11 @@ Feel free to explore, fork, and contribute! This project is open to improvements
 
 ## 📷 Screenshots
 
-*(Add your screenshots here if available for better engagement)*
+## 📸 Screenshots
+
+| Home | Discover | Detail | Trailer |
+|------|----------|--------|---------|
+| ![](screenshots/home.png) | ![](screenshots/discover.png) | ![](screenshots/detail.png) | ![](screenshots/trailer.png) |
 
 ---
 
